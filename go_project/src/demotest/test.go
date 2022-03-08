@@ -1,4 +1,4 @@
-package main
+package demotest
 
 import (
 	"encoding/json"
@@ -56,12 +56,4 @@ func serialize() {
 		fmt.Printf("反序列化结果：")
 		fmt.Println(stu2)
 	}
-}
-
-func main() {
-	serialize()
-
-	/*http.HandleFunc("/", handler)
-	//http.HandleFunc("/file", fileHandler)
-	log.Fatal(http.ListenAndServe(":8080", nil))*/
 }
