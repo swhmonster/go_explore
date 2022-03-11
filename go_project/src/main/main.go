@@ -1,9 +1,9 @@
 package main
 
 import (
-	"net/http"
-
+	"demotest"
 	"github.com/gin-gonic/gin"
+	"net/http"
 )
 
 var db = make(map[string]string)
@@ -26,6 +26,15 @@ func setupRouter() *gin.Engine {
 			c.JSON(http.StatusOK, gin.H{"user": user, "value": value})
 		} else {
 			c.JSON(http.StatusOK, gin.H{"user": user, "status": "no value"})
+		}
+	})
+
+	r.GET("/serialize", func(c *gin.Context) {
+		value, err := demotest.Serialize()
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"err": err})
+		} else {
+			c.JSON(http.StatusOK, gin.H{"value": value})
 		}
 	})
 

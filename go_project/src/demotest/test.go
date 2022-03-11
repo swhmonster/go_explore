@@ -30,7 +30,7 @@ func fileHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, filePath)
 }
 
-func serialize() {
+func Serialize() (Student, error) {
 	stu := Student{
 		"张三",
 		20,
@@ -56,4 +56,5 @@ func serialize() {
 		fmt.Printf("反序列化结果：")
 		fmt.Println(stu2)
 	}
+	return stu, err
 }
