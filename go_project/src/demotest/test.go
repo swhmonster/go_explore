@@ -58,3 +58,18 @@ func Serialize() (Student, error) {
 	}
 	return stu, err
 }
+
+// basetest
+func TestMap() (map[string]string, error) {
+	m := make(map[string]string)
+	m["key1"] = "value1"
+	m["key2"] = "value2"
+	return m, nil
+}
+
+func TestSlice() ([]string, error) {
+	s := make([]string, 1, 5)
+	s = append(s, "value1")
+	s = append(s, "value2", "value3")
+	return s, nil
+}

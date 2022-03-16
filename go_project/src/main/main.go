@@ -38,6 +38,24 @@ func setupRouter() *gin.Engine {
 		}
 	})
 
+	r.GET("/testmap", func(c *gin.Context) {
+		value, err := demotest.TestMap()
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"err": err})
+		} else {
+			c.JSON(http.StatusOK, gin.H{"value": value})
+		}
+	})
+
+	r.GET("/testslice", func(c *gin.Context) {
+		value, err := demotest.TestSlice()
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"err": err})
+		} else {
+			c.JSON(http.StatusOK, gin.H{"value": value})
+		}
+	})
+
 	// Authorized group (uses gin.BasicAuth() middleware)
 	// Same than:
 	// authorized := r.Group("/")
