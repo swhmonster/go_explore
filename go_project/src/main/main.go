@@ -2,8 +2,11 @@ package main
 
 import (
 	"demotest"
+	"fmt"
 	"github.com/gin-gonic/gin"
+	"log"
 	"net/http"
+	"os"
 )
 
 var db = make(map[string]string)
@@ -99,7 +102,23 @@ func setupRouter() *gin.Engine {
 	return r
 }
 
+var LOGFILE = "/tmp/mGo.log"
+
 func main() {
+	// 推荐将错误消息发送值UNIX机器上的日志服务，防止发用不必要的数据填写日志文件
+	// 日志配置 0644：UNIX文件权限
+	f, err := os.OpenFile(LOGFILE, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	defer f.Close()
+	iLog := log.New(f, "customLogLineNumber", log.LstdFlags)
+	// 第二个参数为输出行号
+	iLog.SetFlags(log.LstdFlags | log.Lshortfile)
+
+	iLog.Println("server starting...")
+	iLog.Println("server started!")
 	r := setupRouter()
 	// Listen and Server in 0.0.0.0:8080
 	r.Run(":18080")
