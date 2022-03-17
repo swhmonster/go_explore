@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 )
 
 type Student struct {
@@ -72,4 +73,30 @@ func TestSlice() ([]string, error) {
 	s = append(s, "value1")
 	s = append(s, "value2", "value3")
 	return s, nil
+}
+
+func TestGenerics() string {
+	// Initialize a map for the integer values
+	ints := map[string]int64{
+		"first":  34,
+		"second": 12,
+	}
+
+	// Initialize a map for the float values
+	floats := map[string]float64{
+		"first":  35.98,
+		"second": 26.99,
+	}
+
+	return "Generic Sums, type parameters inferred:" + strconv.Itoa(int(SumIntsOrFloats(ints))) + " and " + strconv.FormatFloat(SumIntsOrFloats(floats), 'f', 2, 64)
+}
+
+// SumIntsOrFloats sums the values of map m. It supports both floats and integers
+// as map values.
+func SumIntsOrFloats[K comparable, V int64 | float64](m map[K]V) V {
+	var s V
+	for _, v := range m {
+		s += v
+	}
+	return s
 }

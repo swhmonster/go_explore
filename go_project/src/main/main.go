@@ -56,6 +56,11 @@ func setupRouter() *gin.Engine {
 		}
 	})
 
+	r.GET("/testgenerics", func(c *gin.Context) {
+		value := demotest.TestGenerics()
+		c.JSON(http.StatusOK, gin.H{"value": value})
+	})
+
 	// Authorized group (uses gin.BasicAuth() middleware)
 	// Same than:
 	// authorized := r.Group("/")
