@@ -4,6 +4,7 @@ import (
 	"demotest"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	logrus "github.com/sirupsen/logrus"
 	"log"
 	"net/http"
 	"os"
@@ -119,6 +120,13 @@ func main() {
 
 	iLog.Println("server starting...")
 	iLog.Println("server started!")
+
+	// logrus 日志库
+	// 若需输出到文件，仍采用上面的方式输出到文件
+	logrus.WithFields(logrus.Fields{
+		"animal": "walrus",
+	}).Info("A walrus appears")
+
 	r := setupRouter()
 	// Listen and Server in 0.0.0.0:8080
 	r.Run(":18080")

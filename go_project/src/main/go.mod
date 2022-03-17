@@ -21,6 +21,9 @@ require (
 	gopkg.in/yaml.v2 v2.2.8 // indirect
 )
 
-require demotest v0.0.0
+require (
+	demotest v0.0.0
+	github.com/sirupsen/logrus v1.8.1
+)
 
 replace demotest => ../demotest
