@@ -105,6 +105,13 @@ func setupRouter() *gin.Engine {
 
 var LOGFILE = "/tmp/mGo.log"
 
+func init() {
+	// logrus 设置日志时间output
+	logrus.SetFormatter(&logrus.TextFormatter{
+		FullTimestamp: true,
+	})
+}
+
 func main() {
 	// 推荐将错误消息发送值UNIX机器上的日志服务，防止发用不必要的数据填写日志文件
 	// 日志配置 0644：UNIX文件权限
