@@ -4,7 +4,7 @@ import (
 	"demotest"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	logrus "github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 	"log"
 	"net/http"
 	"os"
