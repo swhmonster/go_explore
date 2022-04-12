@@ -3,11 +3,14 @@ package main
 import (
 	"demotest"
 	"fmt"
+	ginpprof "github.com/gin-contrib/pprof"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 	"log"
 	"net/http"
 	"os"
+	"runtime"
+	"runtime/pprof"
 )
 
 var db = make(map[string]string)
@@ -103,7 +106,33 @@ func setupRouter() *gin.Engine {
 	return r
 }
 
+// linux tmp 系统重启时，默认清理"tmp目录下"10天未用的文件
 var LOGFILE = "/tmp/mGo.log"
+var cpuprofile = "/tmp/cpu.prof"
+var memprofile = "/tmp/mem.prof"
+
+// pprof
+func initGoToolPprofConfig() {
+	f, err := os.Create(cpuprofile)
+	if err != nil {
+		logrus.Fatal("could not create CPU profile: ", err)
+	}
+	defer f.Close() // error handling omitted for example
+	if err := pprof.StartCPUProfile(f); err != nil {
+		logrus.Fatal("could nolst start CPU profile: ", err)
+	}
+	defer pprof.StopCPUProfile()
+
+	f2, err2 := os.Create(memprofile)
+	if err2 != nil {
+		logrus.Fatal("could not create memory profile: ", err2)
+	}
+	defer f2.Close() // error handling omitted for example
+	runtime.GC()     // get up-to-date statistics
+	if err2 := pprof.WriteHeapProfile(f2); err2 != nil {
+		logrus.Fatal("could not write memory profile: ", err2)
+	}
+}
 
 func init() {
 	// logrus 设置日志时间output
@@ -134,7 +163,13 @@ func main() {
 		"animal": "walrus",
 	}).Info("A walrus appears")
 
+	// go tool pprof 信息采集至文件
+	// cmd:go tool pprof cpu.prof
+	/*initGoToolPprofConfig()*/
+
 	r := setupRouter()
+	// ginpprof
+	ginpprof.Register(r)
 	// Listen and Server in 0.0.0.0:8080
 	r.Run(":18080")
 }
