@@ -134,6 +134,25 @@ func initGoToolPprofConfig() {
 	}
 }
 
+// interfate strong check
+type Shape interface {
+	Sides() int
+	Area() int
+}
+
+type Square struct {
+	len int
+}
+
+func (s *Square) Area() int {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (s *Square) Sides() int {
+	return 4
+}
+
 func init() {
 	// logrus 设置日志时间output
 	logrus.SetFormatter(&logrus.TextFormatter{
@@ -162,6 +181,11 @@ func main() {
 	logrus.WithFields(logrus.Fields{
 		"animal": "walrus",
 	}).Info("A walrus appears")
+
+	// 校验是否完全实现接口方法，在 Go 语言编程圈里有一个比较标准的作法如下
+	var _ Shape = (*Square)(nil)
+	s := Square{len: 5}
+	logrus.WithFields(logrus.Fields{"sides": s.len}).Info("Square Sides")
 
 	// go tool pprof 信息采集至文件
 	// cmd:go tool pprof cpu.prof
