@@ -1,3 +1,12 @@
+/*
+这是包注释go
+
+godoc 既是一个程序，又是一个 Web 服务器，它对 Go 的源码进行处理，并提取包中的文档内容。
+
+出现在顶级声明之前，且与该声明之间没有空行的注释，将与该声明一起被提取出来，作为该条目的说明文档。
+
+这些注释的类型和风格决定了 godoc生成的文档质量。
+*/
 package main
 
 import (
@@ -15,6 +24,7 @@ import (
 
 var db = make(map[string]string)
 
+// setupRouter 用于路由设置
 func setupRouter() *gin.Engine {
 	// Disable Console Color
 	// gin.DisableConsoleColor()
@@ -107,11 +117,12 @@ func setupRouter() *gin.Engine {
 }
 
 // linux tmp 系统重启时，默认清理"tmp目录下"10天未用的文件
-var LOGFILE = "/tmp/mGo.log"
+
+var logFile = "/tmp/mGo.log"
 var cpuprofile = "/tmp/cpu.prof"
 var memprofile = "/tmp/mem.prof"
 
-// pprof
+// initGoToolPprofConfig 初始化pprof配置
 func initGoToolPprofConfig() {
 	f, err := os.Create(cpuprofile)
 	if err != nil {
@@ -134,7 +145,9 @@ func initGoToolPprofConfig() {
 	}
 }
 
-// interfate strong check
+//  接口 strong check
+
+// Shape 形状接口
 type Shape interface {
 	Sides() int
 	Area() int
@@ -153,6 +166,7 @@ func (s *Square) Sides() int {
 	return 4
 }
 
+// init main方法执行前初始化
 func init() {
 	// logrus 设置日志时间output
 	logrus.SetFormatter(&logrus.TextFormatter{
@@ -160,10 +174,11 @@ func init() {
 	})
 }
 
+// main main包的main方法
 func main() {
 	// 推荐将错误消息发送值UNIX机器上的日志服务，防止发用不必要的数据填写日志文件
 	// 日志配置 0644：UNIX文件权限
-	f, err := os.OpenFile(LOGFILE, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	f, err := os.OpenFile(logFile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		fmt.Println(err)
 		return
