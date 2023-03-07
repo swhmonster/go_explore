@@ -3,6 +3,7 @@ package demotest
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/xuri/excelize/v2"
 	"log"
 	"net/http"
 	"os"
@@ -105,12 +106,12 @@ func SumIntsOrFloats[K comparable, V int64 | float64](m map[K]V) V {
 // Container is a generic container, accepting anything.
 type Container []interface{}
 
-//Put adds an element to the container.
+// Put adds an element to the container.
 func (c *Container) Put(elem interface{}) {
 	*c = append(*c, elem)
 }
 
-//Get gets an element from the container.
+// Get gets an element from the container.
 func (c *Container) Get() interface{} {
 	elem := (*c)[0]
 	*c = (*c)[1:]
@@ -126,8 +127,33 @@ intContainer.Put(42)
 // type assert use
 // assert that the actual type is int
 elem, ok := intContainer.Get().(int)
-if !ok {
-    fmt.Println("Unable to read an int from intContainer")
-}
+
+	if !ok {
+	    fmt.Println("Unable to read an int from intContainer")
+	}
+
 fmt.Printf("assertExample: %d (%T)\n", elem, elem)
 */
+func TestExcelize() {
+	f := excelize.NewFile()
+	defer func() {
+		if err := f.Close(); err != nil {
+			fmt.Println(err)
+		}
+	}()
+	// 创建一个工作表
+	index, err := f.NewSheet("Sheet2")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	// 设置单元格的值
+	f.SetCellValue("Sheet2", "A2", "Hello world.")
+	f.SetCellValue("Sheet1", "B2", 100)
+	// 设置工作簿的默认工作表
+	f.SetActiveSheet(index)
+	// 根据指定路径保存文件
+	if err := f.SaveAs("Book1.xlsx"); err != nil {
+		fmt.Println(err)
+	}
+}

@@ -78,6 +78,11 @@ func setupRouter() *gin.Engine {
 		c.JSON(http.StatusOK, gin.H{"value": value})
 	})
 
+	r.GET("/testExcelize", func(c *gin.Context) {
+		demotest.TestExcelize()
+		c.JSON(http.StatusOK, gin.H{"value": "void"})
+	})
+
 	// Authorized group (uses gin.BasicAuth() middleware)
 	// Same than:
 	// authorized := r.Group("/")
