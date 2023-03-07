@@ -32,7 +32,9 @@ func setupRouter() *gin.Engine {
 
 	// Ping test
 	r.GET("/", func(c *gin.Context) {
-		c.String(http.StatusOK, "I have these api: /ping, /user/:name, /serialize, /testmap, /testslice, /testgenerics, /testExcelize")
+		c.JSON(http.StatusOK, gin.H{
+			"I have these api":                          "/ping, /user/:name, /serialize, /testmap, /testslice, /testgenerics, /testExcelize",
+			"Here is the monitor(by ginpprof.Register)": "ip:port/debug/pprof"})
 	})
 
 	// Ping test
@@ -212,12 +214,19 @@ func main() {
 	s := Square{len: 5}
 	logrus.WithFields(logrus.Fields{"sides": s.len}).Info("Square Sides")
 
+	// pprof 用法一：
 	// go tool pprof 信息采集至文件
 	// cmd:go tool pprof cpu.prof
 	/*initGoToolPprofConfig()*/
 
+	// pprof 用法二：
+	/*pprofErr := http.ListenAndServe(":18081", nil)
+	if pprofErr != nil {
+		panic(pprofErr)
+	}*/
+
 	r := setupRouter()
-	// ginpprof
+	// ginpprof: ip:port/debug/pprof
 	ginpprof.Register(r)
 	// Listen and Server in 0.0.0.0:8080
 	r.Run(":18080")
