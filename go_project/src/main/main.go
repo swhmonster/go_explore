@@ -31,6 +31,11 @@ func setupRouter() *gin.Engine {
 	r := gin.Default()
 
 	// Ping test
+	r.GET("/", func(c *gin.Context) {
+		c.String(http.StatusOK, "I have these api: /ping, /user/:name, /serialize, /testmap, /testslice, /testgenerics, /testExcelize")
+	})
+
+	// Ping test
 	r.GET("/ping", func(c *gin.Context) {
 		c.String(http.StatusOK, "pong")
 	})
