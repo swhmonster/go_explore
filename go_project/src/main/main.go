@@ -24,6 +24,14 @@ import (
 
 var db = make(map[string]string)
 
+// linux tmp 系统重启时，默认清理"tmp目录下"10天未用的文件
+var LogFile = "/tmp/go_project.log"
+var cpuprofile = "/tmp/go_project_cpu.prof"
+var memprofile = "/tmp/go_project_mem.prof"
+
+// logrus实例
+var logrusInstance = logrus.New()
+
 // setupRouter 用于路由设置
 func setupRouter() *gin.Engine {
 	// Disable Console Color
@@ -128,32 +136,26 @@ func setupRouter() *gin.Engine {
 	return r
 }
 
-// linux tmp 系统重启时，默认清理"tmp目录下"10天未用的文件
-
-var logFile = "/tmp/mGo.log"
-var cpuprofile = "/tmp/cpu.prof"
-var memprofile = "/tmp/mem.prof"
-
 // initGoToolPprofConfig 初始化pprof配置
 func initGoToolPprofConfig() {
 	f, err := os.Create(cpuprofile)
 	if err != nil {
-		logrus.Fatal("could not create CPU profile: ", err)
+		logrusInstance.Fatal("could not create CPU profile: ", err)
 	}
 	defer f.Close() // error handling omitted for example
 	if err := pprof.StartCPUProfile(f); err != nil {
-		logrus.Fatal("could nolst start CPU profile: ", err)
+		logrusInstance.Fatal("could nolst start CPU profile: ", err)
 	}
 	defer pprof.StopCPUProfile()
 
 	f2, err2 := os.Create(memprofile)
 	if err2 != nil {
-		logrus.Fatal("could not create memory profile: ", err2)
+		logrusInstance.Fatal("could not create memory profile: ", err2)
 	}
 	defer f2.Close() // error handling omitted for example
 	runtime.GC()     // get up-to-date statistics
 	if err2 := pprof.WriteHeapProfile(f2); err2 != nil {
-		logrus.Fatal("could not write memory profile: ", err2)
+		logrusInstance.Fatal("could not write memory profile: ", err2)
 	}
 }
 
@@ -181,7 +183,7 @@ func (s *Square) Sides() int {
 // init main方法执行前初始化
 func init() {
 	// logrus 设置日志时间output
-	logrus.SetFormatter(&logrus.TextFormatter{
+	logrusInstance.SetFormatter(&logrus.TextFormatter{
 		FullTimestamp: true,
 	})
 }
@@ -190,12 +192,18 @@ func init() {
 func main() {
 	// 推荐将错误消息发送值UNIX机器上的日志服务，防止发用不必要的数据填写日志文件
 	// 日志配置 0644：UNIX文件权限
-	f, err := os.OpenFile(logFile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	f, err := os.OpenFile(LogFile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
-	defer f.Close()
+	defer func(f *os.File) {
+		err := f.Close()
+		if err != nil {
+			logrusInstance.Error("logfile closed failure", err)
+		}
+	}(f)
+
 	iLog := log.New(f, "customLogLineNumber", log.LstdFlags)
 	// 第二个参数为输出行号
 	iLog.SetFlags(log.LstdFlags | log.Lshortfile)
@@ -204,15 +212,16 @@ func main() {
 	iLog.Println("server started!")
 
 	// logrus 日志库
-	// 若需输出到文件，仍采用上面的方式输出到文件
-	logrus.WithFields(logrus.Fields{
+	// 设置logrus输出到的文件
+	logrusInstance.Out = f
+	logrusInstance.WithFields(logrus.Fields{
 		"animal": "walrus",
 	}).Info("A walrus appears")
 
 	// 校验是否完全实现接口方法，在 Go 语言编程圈里有一个比较标准的作法如下
 	var _ Shape = (*Square)(nil)
 	s := Square{len: 5}
-	logrus.WithFields(logrus.Fields{"sides": s.len}).Info("Square Sides")
+	logrusInstance.WithFields(logrus.Fields{"sides": s.len}).Info("Square Sides")
 
 	// pprof 用法一：
 	// go tool pprof 信息采集至文件
@@ -229,5 +238,9 @@ func main() {
 	// ginpprof: ip:port/debug/pprof
 	ginpprof.Register(r)
 	// Listen and Server in 0.0.0.0:8080
-	r.Run(":18080")
+	err0 := r.Run(":18080")
+	if err0 != nil {
+		logrusInstance.Error("server start failure", err0)
+		return
+	}
 }

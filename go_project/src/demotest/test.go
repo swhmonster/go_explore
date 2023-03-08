@@ -3,6 +3,7 @@ package demotest
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/sirupsen/logrus"
 	"github.com/xuri/excelize/v2"
 	"log"
 	"net/http"
@@ -16,6 +17,23 @@ type Student struct {
 	Gender string   `json:"gender"` // 性别
 	Score  float64  `json:"score"`  // 分数
 	Course []string `json:"course"` // 课程
+}
+
+var logrusTestInstance = logrus.New()
+var logFile = "/tmp/go_project.log"
+
+func init() {
+	// logrus 设置日志时间output
+	f, err := os.OpenFile(logFile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	logrusTestInstance.Out = f
+	logrusTestInstance.SetLevel(logrus.DebugLevel)
+	logrusTestInstance.SetFormatter(&logrus.TextFormatter{
+		FullTimestamp: true,
+	})
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
@@ -58,6 +76,7 @@ func Serialize() (Student, error) {
 		fmt.Printf("反序列化结果：")
 		fmt.Println(stu2)
 	}
+	logrusTestInstance.Debug(stu)
 	return stu, err
 }
 
@@ -66,6 +85,7 @@ func TestMap() (map[string]string, error) {
 	m := make(map[string]string)
 	m["key1"] = "value1"
 	m["key2"] = "value2"
+	logrusTestInstance.Debug(m)
 	return m, nil
 }
 
@@ -73,6 +93,7 @@ func TestSlice() ([]string, error) {
 	s := make([]string, 1, 5)
 	s = append(s, "value1")
 	s = append(s, "value2", "value3")
+	logrusTestInstance.Debug(s)
 	return s, nil
 }
 
@@ -88,7 +109,7 @@ func TestGenerics() string {
 		"first":  35.98,
 		"second": 26.99,
 	}
-
+	logrusTestInstance.Debug("Generic Sums, type parameters inferred:" + strconv.Itoa(int(SumIntsOrFloats(ints))) + " and " + strconv.FormatFloat(SumIntsOrFloats(floats), 'f', 2, 64))
 	return "Generic Sums, type parameters inferred:" + strconv.Itoa(int(SumIntsOrFloats(ints))) + " and " + strconv.FormatFloat(SumIntsOrFloats(floats), 'f', 2, 64)
 }
 
@@ -99,6 +120,7 @@ func SumIntsOrFloats[K comparable, V int64 | float64](m map[K]V) V {
 	for _, v := range m {
 		s += v
 	}
+	logrusTestInstance.Debug(s)
 	return s
 }
 
