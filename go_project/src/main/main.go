@@ -27,6 +27,7 @@ var db = make(map[string]string)
 
 // linux tmp 系统重启时，默认清理"tmp目录下"10天未用的文件
 var LogFile = "/tmp/go_project.log"
+var ginLogFile = "/tmp/go_project_gin.log"
 var cpuprofile = "/tmp/go_project_cpu.prof"
 var memprofile = "/tmp/go_project_mem.prof"
 
@@ -198,12 +199,7 @@ func main() {
 		fmt.Println(err)
 		return
 	}
-	defer func(f *os.File) {
-		err := f.Close()
-		if err != nil {
-			logrusInstance.Error("logfile closed failure", err)
-		}
-	}(f)
+	defer f.Close()
 
 	iLog := log.New(f, "customLogLineNumber", log.LstdFlags)
 	// 第二个参数为输出行号
@@ -235,7 +231,9 @@ func main() {
 		panic(pprofErr)
 	}*/
 
-	gin.DefaultWriter = io.MultiWriter(f)
+	ginLogfile, err := os.OpenFile(ginLogFile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	defer ginLogfile.Close()
+	gin.DefaultWriter = io.MultiWriter(ginLogfile)
 	r := setupRouter()
 	// ginpprof: ip:port/debug/pprof
 	ginpprof.Register(r)
