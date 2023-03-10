@@ -233,7 +233,9 @@ func main() {
 
 	ginLogfile, err := os.OpenFile(ginLogFile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	defer ginLogfile.Close()
-	gin.DefaultWriter = io.MultiWriter(ginLogfile)
+	// 如果需要同时将日志写入文件和控制台，请使用以下代码。
+	//gin.DefaultWriter = io.MultiWriter(ginLogfile)
+	gin.DefaultWriter = io.MultiWriter(f, os.Stdout)
 	r := setupRouter()
 	// ginpprof: ip:port/debug/pprof
 	ginpprof.Register(r)
