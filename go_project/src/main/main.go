@@ -15,6 +15,7 @@ import (
 	ginpprof "github.com/gin-contrib/pprof"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
+	"io"
 	"log"
 	"net/http"
 	"os"
@@ -234,6 +235,7 @@ func main() {
 		panic(pprofErr)
 	}*/
 
+	gin.DefaultWriter = io.MultiWriter(f)
 	r := setupRouter()
 	// ginpprof: ip:port/debug/pprof
 	ginpprof.Register(r)
